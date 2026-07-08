@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Fatura de Serviço - Exemplo</title>
+    <style>
+      body{font-family: Arial, Helvetica, sans-serif;background:#f3f4f6;padding:20px}
+      .sheet{width:800px;margin:0 auto;background:#fff;padding:18px;border:1px solid #ddd}
+      .pdf-header{background:#111;color:#fff;padding:18px}
+      .brand{display:flex;align-items:center;gap:12px}
+      .bulb{width:56px;height:56px;background:linear-gradient(135deg,#ffd400,#e6007e);border-radius:50%}
+      .pdf-title{background:#111;color:#fff;padding:22px 10px;text-align:center;margin-top:12px}
+      .pdf-title h1{margin:0;font-size:36px}
+      .invoice-number{font-weight:700;margin-top:6px}
+      .meta{padding:16px 6px}
+      .table-yellow{width:100%;border-collapse:collapse;margin-top:12px}
+      .table-yellow thead th{background:#ffd400;color:#111;padding:10px;border:1px solid #999}
+      .table-yellow td, .table-yellow th{border:1px solid #999;padding:12px}
+      .table-total{background:#eee;font-weight:700}
+      .payment-info{margin-top:18px}
+      .footer-logos{display:flex;gap:8px;justify-content:center;margin-top:18px}
+      .footer-logos .logo{width:32px;height:32px;background:#ffd400;border-radius:4px}
+      .right{text-align:right}
+      pre{margin:0}
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+      <div class="pdf-header">
+        <div class="brand">
+          <div class="bulb"></div>
+          <div>
+            <div style="font-weight:700;font-size:18px;">AGÊNCIA INNOVAE DIGITAL</div>
+            <div style="font-size:12px">(61) 93300-4316 — Luziânia/GO</div>
+          </div>
+          <div style="margin-left:auto;font-size:12px;">@innovaedigital.midia</div>
+        </div>
+      </div>
+
+      <div class="pdf-title">
+        <h1>Fatura de Serviço</h1>
+        <div class="invoice-number">NÚMERO DA FATURA: 207-2026</div>
+      </div>
+
+      <div class="meta">
+        <div><strong>Prestador do Serviço:</strong> Liendre Saavedra Caixeta</div>
+        <div><strong>Telefone:</strong> (61) 99573-0013</div>
+        <div><strong>E-mail:</strong> viisiongrafica@gmail.com </div>
+        <div style="margin-top:8px"><strong>Nome do Cliente:</strong> SABOR E CIA.</div>
+      </div>
+
+      <table class="table-yellow">
+        <thead>
+          <tr>
+            <th style="width:55%">DESCRIÇÃO</th>
+            <th style="width:10%">QTD</th>
+            <th style="width:17%">PREÇO UNITÁRIO</th>
+            <th style="width:18%">TOTAL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>ADESIVO VINIL<br><small>0,68 X 1,28</small></td>
+            <td class="right">1</td>
+            <td class="right">R$ 95,00</td>
+            <td class="right">R$ 95,00</td>
+          </tr>
+          <tr>
+            <td>QUADRO 90X70<br><small>(acabamento em PVC)</small></td>
+            <td class="right">3</td>
+            <td class="right">R$ 120,00</td>
+            <td class="right">R$ 360,00</td>
+          </tr>
+          <tr>
+            <td>Arte Finalista</td>
+            <td class="right">1</td>
+            <td class="right">R$ 70,00</td>
+            <td class="right">R$ 70,00</td>
+          </tr>
+          <tr>
+            <td>-</td>
+            <td class="right">-</td>
+            <td class="right">-</td>
+            <td class="right">-</td>
+          </tr>
+          <tr>
+            <td>DESCONTO</td>
+            <td class="right">-</td>
+            <td class="right">-</td>
+            <td class="right">R$ 70,00</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="table-total">
+            <td colspan="3" class="right">TOTAL C/ DESCONTO APLICADO:</td>
+            <td class="right">R$ 455,00</td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="payment-info">
+        <div><strong>FORMA DE PAGAMENTO:</strong></div>
+        <div>Pix Celular - 61995730013 - LIENDRE SAAVEDRA CAIXETA</div>
+        <div>@visionluziania</div>
+        <div>Luziânia/GO</div>
+      </div>
+
+      <div class="footer-logos">
+        <div class="logo"></div>
+        <div class="logo"></div>
+        <div class="logo"></div>
+        <div class="logo"></div>
+      </div>
+    </div>
+  </body>
+</html>
