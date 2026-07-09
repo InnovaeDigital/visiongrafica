@@ -796,8 +796,6 @@
       const statusMessage = document.getElementById("statusMessage");
       const calcIds = ["materialPreset", "calcWidth", "calcHeight", "calcQuantity", "calcCost", "calcPrice"];
       const calcFields = {};
-      let pixRequestId = 0;
-      let pixTimer = null;
       const previewTargets = [...document.querySelectorAll("[data-preview]")]
         .reduce((acc, node) => {
           acc[node.dataset.preview] = node;
@@ -961,14 +959,9 @@
         return String(invoiceNumber || "ORCAMENTO").replace(/[^a-z0-9]/gi, "").slice(0, 20) || "ORCAMENTO";
       }
 
-      function loadGerarPix(data) {
+      function generatePix(data) {
         previewTargets.pixPayload.textContent = data.pixPayload;
         previewTargets.pixQr.src = qrCodeUrl(data.pixPayload);
-      }
-
-      function scheduleGerarPix(data) {
-        // Generate QR locally immediately; avoid external API to prevent failures
-        loadGerarPix(data);
       }
 
       function getFormData() {
@@ -1240,8 +1233,7 @@
         previewTargets.paymentLine1.textContent = lines[0] || "";
         previewTargets.paymentLine2.textContent = lines[1] || "";
         previewTargets.paymentLine3.textContent = lines[2] || "";
-        previewTargets.pixPayload.textContent = data.pixPayload;
-        previewTargets.pixQr.src = qrCodeUrl(data.pixPayload);
+        generatePix(data);
 
         previewRows.innerHTML = "";
         data.items.forEach((item) => {
