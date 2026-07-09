@@ -3,6 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#060811" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="VISION Orçamentos" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="assets/logo-vision.PNG" />
     <title>Gerador de Orçamentos - VISION GRÁFICA RÁPIDA</title>
     <style>
       :root {
@@ -500,23 +506,45 @@
           padding: 14px;
         }
 
+        .controls {
+          padding: 18px;
+        }
+
+        .control-logo {
+          width: 140px;
+        }
+
         .preview-wrap {
           margin-inline: -14px;
         }
 
         .preview-header {
           margin: 0 14px 14px;
+          flex-direction: column;
+          align-items: flex-start;
         }
 
+        .row,
         .row.three,
         .summary-cards,
         .details-grid,
-        .payment-card {
+        .payment-card,
+        .item-editor .item-grid,
+        .db-stats {
           grid-template-columns: 1fr;
         }
 
         .sheet {
           border-radius: 20px;
+        }
+
+        .actions {
+          flex-direction: column;
+        }
+
+        .brand {
+          flex-direction: column;
+          align-items: flex-start;
         }
       }
 
@@ -1437,6 +1465,12 @@
       renderCalculator();
       renderItems();
       renderPreview();
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(() => {});
+        });
+      }
     </script>
   </body>
 </html>
