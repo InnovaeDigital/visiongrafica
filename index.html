@@ -592,7 +592,7 @@
   <body>
     <main class="app">
       <section class="controls" aria-label="Dados do orçamento">
-        <img class="control-logo" src="assets/logo-vision.png" alt="VISION GRÁFICA RÁPIDA" />
+        <img class="control-logo" src="assets/logo-vision.PNG" alt="VISION GRÁFICA RÁPIDA" />
         <h1>Gerador de Orçamentos</h1>
         <p class="hint">Preencha os dados, confira a prévia e gere o PDF pelo navegador.</p>
 
@@ -707,7 +707,7 @@
         <article class="sheet" id="preview">
           <div class="pdf-header">
             <div class="brand">
-              <img class="brand-logo" src="assets/logo-vision.png" alt="VISION GRÁFICA RÁPIDA" />
+              <img class="brand-logo" src="assets/logo-vision.PNG" alt="VISION GRÁFICA RÁPIDA" />
               <div class="brand-info">
                 <div class="brand-name">VISION GRÁFICA RÁPIDA</div>
                 <div class="brand-tag">RUA FLORENTINO CHAVES N° 204, QD 72, LT 12, SALA 01 LUZIÂNIA GO.</div>
@@ -729,7 +729,7 @@
               </div>
               <div class="summary-card">
                 <span>Valor Total</span>
-                <strong data-preview="grandTotal"></strong>
+                <strong data-preview="grandTotalSummary"></strong>
               </div>
             </div>
 
@@ -786,6 +786,7 @@
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.5.0/qrcode.min.js"></script>
     <script>
       const materialStorageKey = "vision.materialPresets";
       const quotesStorageKey = "vision.savedQuotes";
@@ -924,7 +925,31 @@
       }
 
       function qrCodeUrl(payload) {
-        return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=10&data=${encodeURIComponent(payload)}`;
+        if (typeof qrcode === "function") {
+          const qr = qrcode(0, "M");
+          qr.addData(payload);
+          qr.make();
+          const moduleCount = qr.getModuleCount();
+          const cellSize = 4;
+          const margin = 8;
+          const size = moduleCount * cellSize + margin * 2;
+          const rects = [];
+
+          for (let row = 0; row < moduleCount; row += 1) {
+            for (let col = 0; col < moduleCount; col += 1) {
+              if (qr.isDark(row, col)) {
+                const x = margin + col * cellSize;
+                const y = margin + row * cellSize;
+                rects.push(`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="#000" />`);
+              }
+            }
+          }
+
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="100%" height="100%" fill="#fff" />${rects.join("")}</svg>`;
+          return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        }
+
+        return pixPlaceholder();
       }
 
       function pixPlaceholder() {
@@ -1208,6 +1233,7 @@
         previewTargets.social.textContent = data.social || "";
         previewTargets.phoneCity.textContent = `${data.phone || "-"} — ${data.city || "-"}`;
         previewTargets.paymentTitle.textContent = data.paymentTitle || "FORMA DE PAGAMENTO:";
+        previewTargets.grandTotalSummary.textContent = money(data.total);
         previewTargets.grandTotal.textContent = money(data.total);
 
         const lines = [...data.paymentLines, "", ""];
