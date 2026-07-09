@@ -809,7 +809,7 @@
       let materialPresets = loadMaterialPresets();
 
       let items = [
-        { description: "", quantity: 1, unitPrice: 0 }
+        { description: "", quantity: 1, unitPrice: 0, unitType: "un." }
       ];
 
       function byId(id) {
@@ -856,7 +856,8 @@
         data.items = items.map((item) => ({
           description: item.description.trim() || "-",
           quantity: cleanNumber(item.quantity),
-          unitPrice: cleanNumber(item.unitPrice)
+          unitPrice: cleanNumber(item.unitPrice),
+          unitType: item.unitType || "un."
         }));
         data.invoiceNumber = `ORCAMENTO-${Date.now()}`;
         data.subtotal = data.items.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
@@ -1055,9 +1056,10 @@
           return;
         }
         items.push({
-          description: `${data.description}\n${data.width.toString().replace(".", ",")}m x ${data.height.toString().replace(".", ",")}m | ${data.quantity} un.`,
+          description: `${data.description}\n${data.width.toString().replace(".", ",")}m x ${data.height.toString().replace(".", ",")}m`,
           quantity: Number(data.totalArea.toFixed(4)),
-          unitPrice: Number(data.price.toFixed(2))
+          unitPrice: Number(data.price.toFixed(2)),
+          unitType: "m²"
         });
         renderItems();
         renderPreview();
@@ -1078,6 +1080,13 @@
               <div class="field">
                 <label>Qtd</label>
                 <input data-field="quantity" data-index="${index}" type="number" min="0" step="0.01" value="${item.quantity}">
+              </div>
+              <div class="field">
+                <label>Tipo</label>
+                <select data-field="unitType" data-index="${index}">
+                  <option value="m²"${item.unitType === "m²" ? " selected" : ""}>m²</option>
+                  <option value="un."${item.unitType === "un." ? " selected" : ""}>un.</option>
+                </select>
               </div>
               <div class="field">
                 <label>Preço unitário</label>
@@ -1122,7 +1131,7 @@
           const [main, ...small] = item.description.split(/\r?\n/);
           tr.innerHTML = `
             <td>${escapeHtml(main || "-")}${small.length ? `<br><small>${escapeHtml(small.join(" "))}</small>` : ""}</td>
-            <td class="right">${item.quantity ? formatQuantity(item.quantity) : "-"}</td>
+            <td class="right">${item.quantity ? `${formatQuantity(item.quantity)} ${item.unitType || "un."}` : "-"}</td>
             <td class="right">${money(item.unitPrice)}</td>
             <td class="right">${money(item.quantity * item.unitPrice)}</td>
           `;
@@ -1253,7 +1262,7 @@
           rect(tableX, top, contentWidth, rowH, "1 1 1", true);
           text(lines[0], tableX + 8, top + 18, 9);
           if (lines[1]) text(lines.slice(1).join(" "), tableX + 8, top + 30, 8);
-          text(item.quantity ? formatQuantity(item.quantity) : "-", tableX + cols[1] + 8, top + 20, 9, "F1", "right", cols[2] - cols[1] - 12);
+          text(item.quantity ? `${formatQuantity(item.quantity)} ${item.unitType || "un."}` : "-", tableX + cols[1] + 8, top + 20, 9, "F1", "right", cols[2] - cols[1] - 12);
           text(plainMoney(item.unitPrice), tableX + cols[2] + 8, top + 20, 9, "F1", "right", cols[3] - cols[2] - 12);
           text(plainMoney(item.quantity * item.unitPrice), tableX + cols[3] + 8, top + 20, 9, "F1", "right", cols[4] - cols[3] - 12);
           top += rowH;
@@ -1397,14 +1406,14 @@
           const index = event.target.dataset.remove;
           if (index === undefined) return;
           items.splice(Number(index), 1);
-          if (!items.length) items.push({ description: "", quantity: 1, unitPrice: 0 });
+          if (!items.length) items.push({ description: "", quantity: 1, unitPrice: 0, unitType: "un." });
           renderItems();
           renderPreview();
           setStatus("");
         });
 
         byId("addItem").addEventListener("click", () => {
-          items.push({ description: "", quantity: 1, unitPrice: 0 });
+          items.push({ description: "", quantity: 1, unitPrice: 0, unitType: "un." });
           renderItems();
           renderPreview();
           setStatus("");
@@ -1417,7 +1426,7 @@
         byId("resetForm").addEventListener("click", () => {
           fields.clientName.value = "";
           fields.discount.value = "0";
-          items = [{ description: "", quantity: 1, unitPrice: 0 }];
+          items = [{ description: "", quantity: 1, unitPrice: 0, unitType: "un." }];
           renderItems();
           renderPreview();
           setStatus("Formulário limpo.");
