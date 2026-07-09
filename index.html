@@ -471,31 +471,6 @@
         line-height: 1.6;
       }
 
-      .pix-preview {
-        display: grid;
-        gap: 14px;
-        justify-items: center;
-      }
-
-      .pix-preview img {
-        width: 170px;
-        height: 170px;
-        border-radius: 22px;
-        border: 4px solid rgba(255, 242, 0, .25);
-        background: #fff;
-      }
-
-      .pix-copy {
-        width: 100%;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, .08);
-        padding: 12px;
-        font-size: 11px;
-        line-height: 1.4;
-        color: #e2e8f0;
-        word-break: break-all;
-      }
-
       .footer-note {
         margin-top: 30px;
         font-size: 12px;
@@ -673,7 +648,7 @@
           <label for="discount">Desconto (R$)</label>
           <input id="discount" type="number" min="0" step="0.01" />
         </div>
-        <p class="hint">O Pix é gerado automaticamente para a chave celular 61995730013 com o valor total do orçamento.</p>
+        <p class="hint">Dados de pagamento fixos: Pix 61995730013 e favorecido LIENDRE SAAVEDRA CAIXETA.</p>
 
         <div class="actions">
           <button class="btn primary" id="downloadPdf" type="button">Gerar PDF</button>
@@ -768,15 +743,11 @@
 
             <div class="payment-card">
               <div>
-                <strong>Dados para pagamento via Pix</strong>
+                <strong>Dados para pagamento</strong>
                 <p data-preview="paymentLine1"></p>
                 <p data-preview="paymentLine2"></p>
                 <p data-preview="paymentLine3"></p>
-                <p class="hint">O QR Code é gerado automaticamente com o valor total do orçamento e a chave Pix informada.</p>
-              </div>
-              <div class="pix-preview">
-                <img data-preview="pixQr" alt="QR Code Pix" />
-                <div class="pix-copy" data-preview="pixPayload"></div>
+                <p class="hint">Use a chave Pix e o favorecido para pagamento manual.</p>
               </div>
             </div>
 
@@ -786,7 +757,6 @@
       </section>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.5.0/qrcode.min.js"></script>
     <script>
       const materialStorageKey = "vision.materialPresets";
       const quotesStorageKey = "vision.savedQuotes";
@@ -810,7 +780,6 @@
       const company = {
         providerName: "Liendre Saavedra Caixeta",
         phone: "(61) 99573-0013",
-        pixKey: "+5561995730013",
         pixDisplayKey: "61995730013",
         city: "Luziânia/GO",
         email: "visiongrafica@gmail.com",
@@ -878,92 +847,6 @@
           .replaceAll('"', "&quot;");
       }
 
-      function formatPixAmount(value) {
-        return Number(value || 0).toFixed(2);
-      }
-
-      function tlv(id, value) {
-        const text = String(value);
-        return `${id}${String(text.length).padStart(2, "0")}${text}`;
-      }
-
-      function crc16(payload) {
-        let crc = 0xffff;
-        for (let i = 0; i < payload.length; i += 1) {
-          crc ^= payload.charCodeAt(i) << 8;
-          for (let bit = 0; bit < 8; bit += 1) {
-            crc = crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1;
-            crc &= 0xffff;
-          }
-        }
-        return crc.toString(16).toUpperCase().padStart(4, "0");
-      }
-
-      function createPixPayload(data) {
-        const amount = formatPixAmount(data.total);
-        const txid = pixReference(data.clientName || data.invoiceNumber || String(Date.now()));
-        const merchantAccount = [
-          tlv("00", "br.gov.bcb.pix"),
-          tlv("01", company.pixKey),
-          tlv("02", `Orcamento ${data.invoiceNumber}`.slice(0, 72))
-        ].join("");
-        const payload = [
-          tlv("00", "01"),
-          tlv("26", merchantAccount),
-          tlv("52", "0000"),
-          tlv("53", "986"),
-          tlv("54", amount),
-          tlv("58", "BR"),
-          tlv("59", company.pixName.slice(0, 25)),
-          tlv("60", company.pixCity.slice(0, 15)),
-          tlv("62", tlv("05", txid))
-        ].join("");
-        const withCrc = `${payload}6304`;
-        return `${withCrc}${crc16(withCrc)}`;
-      }
-
-      function qrCodeUrl(payload) {
-        if (typeof qrcode === "function") {
-          const qr = qrcode(0, "M");
-          qr.addData(payload);
-          qr.make();
-          const moduleCount = qr.getModuleCount();
-          const cellSize = 4;
-          const margin = 8;
-          const size = moduleCount * cellSize + margin * 2;
-          const rects = [];
-
-          for (let row = 0; row < moduleCount; row += 1) {
-            for (let col = 0; col < moduleCount; col += 1) {
-              if (qr.isDark(row, col)) {
-                const x = margin + col * cellSize;
-                const y = margin + row * cellSize;
-                rects.push(`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" fill="#000" />`);
-              }
-            }
-          }
-
-          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="100%" height="100%" fill="#fff" />${rects.join("")}</svg>`;
-          return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-        }
-
-        return pixPlaceholder();
-      }
-
-      function pixPlaceholder() {
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220"><rect width="220" height="220" fill="#fff200"/><rect x="16" y="16" width="188" height="188" fill="#ffffff" stroke="#050505" stroke-width="4"/><text x="110" y="104" text-anchor="middle" font-family="Arial" font-size="18" font-weight="700" fill="#050505">Gerando Pix</text><text x="110" y="130" text-anchor="middle" font-family="Arial" font-size="12" fill="#050505">GerarPix.com.br</text></svg>`;
-        return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-      }
-
-      function pixReference(invoiceNumber) {
-        return String(invoiceNumber || "ORCAMENTO").replace(/[^a-z0-9]/gi, "").slice(0, 20) || "ORCAMENTO";
-      }
-
-      function generatePix(data) {
-        previewTargets.pixPayload.textContent = data.pixPayload;
-        previewTargets.pixQr.src = qrCodeUrl(data.pixPayload);
-      }
-
       function getFormData() {
         const data = {};
         Object.keys(defaults).forEach((key) => {
@@ -985,11 +868,10 @@
         data.social = company.social;
         data.paymentTitle = "FORMA DE PAGAMENTO:";
         data.paymentLines = [
-          `Pix Celular - ${company.pixDisplayKey} - ${company.pixName}`,
-          `Valor fixado: ${money(data.total)}`,
-          `${company.social} • ${company.city}`
+          `Chave Pix: ${company.pixDisplayKey}`,
+          `Favorecido: ${company.pixName}`,
+          `Valor fixado: ${money(data.total)}`
         ];
-        data.pixPayload = createPixPayload(data);
         return data;
       }
 
@@ -1233,7 +1115,6 @@
         previewTargets.paymentLine1.textContent = lines[0] || "";
         previewTargets.paymentLine2.textContent = lines[1] || "";
         previewTargets.paymentLine3.textContent = lines[2] || "";
-        generatePix(data);
 
         previewRows.innerHTML = "";
         data.items.forEach((item) => {
@@ -1397,8 +1278,6 @@
         text(data.paymentLines[2] || "", margin + 12, top + 74, 9);
         text("Chave Pix: 61995730013", margin + 12, top + 94, 9);
         text("Favorecido: LIENDRE SAAVEDRA CAIXETA", margin + 12, top + 110, 9);
-        rect(pageW - margin - 170, top + 18, 130, 130, "1 1 1");
-        text("QR Code", pageW - margin - 170 + 10, top + 20, 9, "F2");
         const logoTop = pageH - margin - 28;
         rect(margin, logoTop - 12, contentWidth, 16, soft);
         text("VISION GRÁFICA RÁPIDA — Orçamento criado para uso profissional.", margin + 8, logoTop, 9, "F1");
